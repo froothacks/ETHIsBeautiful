@@ -1,6 +1,7 @@
 import React from "react";
 import { ForceGraph3D } from "react-force-graph";
-import GraphData from "./data/blocks.json";
+// import GraphData from "./data/blocks.json";
+import GraphData from "./data/etherscan.json";
 
 function App() {
   return (
