@@ -2,7 +2,7 @@ import json
 from collections import defaultdict
 
 # Load the JSON file
-filename = 'data_150k_lines.json'
+filename = 'data_210k_with_value.json'
 
 with open(filename, 'r') as file:
     data = json.load(file)
@@ -27,15 +27,27 @@ for node in data['nodes']:
     if node_count[node_id] > threshold:
         pruned_nodes.append(node)
 
+# Dictionary to store the accumulated link value for each pair
+# accumulated_value_links = {}
+
+
 # Add links to the pruned_links list only if both source and target appear more than once in the links
 for link in data['links']:
     if node_count[link['source']] > threshold and node_count[link['target']] > threshold:
-        pruned_links.append(link)
+        # pruned_links.append(link)
+
+        pair_key = frozenset([source, target])
+    
+        # # Accumulate the link value for each pair
+        # if pair_key in accumulated_value_links:
+        #     accumulated_value_links[pair_key]['value'] += link['value']
+        # else:
+        #     accumulated_value_links[pair_key] = link
 
 # Update the data dictionary with the pruned nodes and links
 data['nodes'] = pruned_nodes
 data['links'] = pruned_links
 
 # Save the pruned data back to a JSON file
-with open('pruned_hard2_' + filename, 'w') as file:
+with open('pruned_hard3_' + filename, 'w') as file:
     json.dump(data, file, indent=4)  # Use indent to pretty-print the JSON
