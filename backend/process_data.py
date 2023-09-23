@@ -19,7 +19,7 @@ for link in data['links']:
 pruned_nodes = []
 pruned_links = []
 
-threshold = 10
+threshold = 3
 
 # Add nodes to the pruned_nodes list only if they appear more than once in the links
 for node in data['nodes']:
@@ -49,5 +49,5 @@ data['nodes'] = pruned_nodes
 data['links'] = pruned_links
 
 # Save the pruned data back to a JSON file
-with open('pruned_hard3_' + filename, 'w') as file:
+with open('pruned_hard4_' + filename, 'w') as file:
     json.dump(data, file, indent=4)  # Use indent to pretty-print the JSON
