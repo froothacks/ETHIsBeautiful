@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef } from "react";
 import { ForceGraph3D } from "react-force-graph";
-import GraphData from "./data/blocks.json";
+import GraphData from "./data/etherscan.json";
 // import GraphData from "./data/etherscan.json";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 import * as THREE from "three";

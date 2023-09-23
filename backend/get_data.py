@@ -76,7 +76,7 @@ def bfs_eth_address(start_address, api_key, max_depth):
             #     print("*" * 100)
             #     return transactions_list
 
-            if len(visited_addresses) >= 100:
+            if len(visited_addresses) >= 500:
                 print("HIT 100 visited addresses, MOVING ON")
                 print("*" * 100)
                 return transactions_list
@@ -158,16 +158,16 @@ if __name__ == "__main__":
     # start_address = "0x00000000219ab540356cBB839Cbe05303d7705Fa"
 
     seeds = [
-        "0xBE0eB53F46cd790Cd13851d5EFf43D12404d33E8", 
+    "0xBE0eB53F46cd790Cd13851d5EFf43D12404d33E8", 
     "0x40B38765696e3d5d8d9d834D8AaD4bB6e418E489", 
     "0xF977814e90dA44bFA03b6295A0616a897441aceC",
-    # "0xE92d1A43df510F82C66382592a047d288f85226f",
-    # "0x8103683202aa8DA10536036EDef04CDd865C225E",
-    # "0xC61b9BB3A7a0767E3179713f3A5c7a9aeDCE193C",
-    # "0x47ac0Fb4F2D84898e4D9E7b4DaB3C24507a6D503",
-    # "0x6262998Ced04146fA42253a5C0AF90CA02dfd2A3", # crypto.com
-    # "0x267be1C1D684F78cb4F6a176C4911b741E4Ffdc0", # kraken
-    # "0x5f397B62502e255f68382791947D54C4B2d37F09", # deribit 8
+    "0xE92d1A43df510F82C66382592a047d288f85226f",
+    "0x8103683202aa8DA10536036EDef04CDd865C225E",
+    "0xC61b9BB3A7a0767E3179713f3A5c7a9aeDCE193C",
+    "0x47ac0Fb4F2D84898e4D9E7b4DaB3C24507a6D503",
+    "0x6262998Ced04146fA42253a5C0AF90CA02dfd2A3", # crypto.com
+    "0x267be1C1D684F78cb4F6a176C4911b741E4Ffdc0", # kraken
+    "0x5f397B62502e255f68382791947D54C4B2d37F09", # deribit 8
     ]
     api_key = "replace"  # Replace with your Etherscan API Key
     max_depth = 20  # Replace with your specified degree of depth

@@ -2,7 +2,7 @@ import json
 from collections import defaultdict
 
 # Load the JSON file
-filename = 'data_210k_with_value.json'
+filename = 'monster_data_800k.json'
 
 with open(filename, 'r') as file:
     data = json.load(file)
@@ -19,7 +19,7 @@ for link in data['links']:
 pruned_nodes = []
 pruned_links = []
 
-threshold = 5
+threshold = 10
 
 # Add nodes to the pruned_nodes list only if they appear more than once in the links
 for node in data['nodes']:
@@ -34,9 +34,9 @@ for node in data['nodes']:
 # Add links to the pruned_links list only if both source and target appear more than once in the links
 for link in data['links']:
     if node_count[link['source']] > threshold and node_count[link['target']] > threshold:
-        # pruned_links.append(link)
+        pruned_links.append(link)
 
-        pair_key = frozenset([source, target])
+        # pair_key = frozenset([source, target])
     
         # # Accumulate the link value for each pair
         # if pair_key in accumulated_value_links:
