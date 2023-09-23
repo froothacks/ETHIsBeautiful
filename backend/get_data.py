@@ -55,6 +55,7 @@ def bfs_eth_address(start_address, api_key, max_depth):
                 to_address = tx['to']
                 amount = tx['value']
                 timestamp = tx['timeStamp']
+                value = tx['value']
             except TypeError:
                 continue
 
@@ -62,7 +63,8 @@ def bfs_eth_address(start_address, api_key, max_depth):
                 'from': from_address,
                 'to': to_address,
                 'amount': amount,
-                'timestamp': timestamp
+                'timestamp': timestamp,
+                'value': value
             })
             global_counter += 1
             if global_counter % 1000 == 0:
@@ -108,14 +110,16 @@ def convert_to_addr_dict(data):
     print(json.dumps(transactions_by_address, indent=2))
     
     nodes = [{"id": x, "user": x} for x in transactions_by_address]
-    links = [{"source": tx["from"], "target": tx["to"]} for tx in data]
+    print("*" * 200)
+    # print([x["value"] for x in data])
+    links = [{"source": tx["from"], "target": tx["to"], "value": tx["value"], "timestamp": tx["timestamp"]} for tx in data]
 
     combined = {"nodes": nodes, "links": links}
     print("NODES AND LINKS")
     print("-" * 100)
     print(json.dumps(combined, indent=2))
 
-    file_name = "prettified.json"
+    file_name = "finished.json"
 
     with open(file_name, 'w') as f:
         json.dump(combined, f, indent=2)
@@ -129,7 +133,7 @@ def convert_to_addr_dict(data):
         transactions_by_address_agg[address] = len(transactions_by_address[address])
 
     # Now, transactions_by_address contains the number of transactions each address is involved in
-    print(json.dumps(transactions_by_address_agg, indent=2))
+    # print(json.dumps(transactions_by_address_agg, indent=2))
 
     return transactions_by_address
 
@@ -177,7 +181,17 @@ if __name__ == "__main__":
         print("length updated all transactions:", len(all_transactions_list))
         # print(all_transactions_list)
 
-    print(json.dumps(all_transactions_list, indent=2))
+    file_name = "all_tx_list.json"
+
+    with open(file_name, 'w') as f:
+        json.dump(all_transactions_list, f, indent=2)
+
+    # filename = 'all_tx_list.json'
+
+    # with open(filename, 'r') as file:
+    #     all_transactions_list = json.load(file)
+
+    # print(json.dumps(all_transactions_list, indent=2))
     convert_to_addr_dict(all_transactions_list)
     
     # print(transactions_list)  # Print or save to a file, or visualize as per your requirement
