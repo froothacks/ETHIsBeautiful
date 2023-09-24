@@ -21,7 +21,7 @@ const SECONDS_IN_A_DAY = 24 * 60 * 60; // 86400 seconds
 // const NUM_BUCKETS = Math.ceil(numDays);
 
 // const NUM_BUCKETS = TIME_INTERVAL_MS / CADENCE_MS;
-const TXN_THRESHOLD = 3;
+const TXN_THRESHOLD = 100;
 
 type TGraphData = {
   nodes: {
@@ -165,7 +165,7 @@ function App() {
         // camera focus adjustment on zoom
         onNodeClick={focusNode}
         linkHoverPrecision={10}
-        linkDirectionalParticleWidth={25}
+        linkDirectionalParticleWidth={23}
         linkDirectionalParticleColor={() => "red"}
         linkDirectionalParticleSpeed={0.2}
       />
