@@ -7,9 +7,21 @@ import * as THREE from "three";
 
 // Global constants
 const TIME_INTERVAL_MS = 180000; // 3 minutes in milliseconds
-const CADENCE_MS = 250; // 1/4 of a second in milliseconds
-const NUM_BUCKETS = TIME_INTERVAL_MS / CADENCE_MS;
-const TXN_THRESHOLD = 200;
+// const CADENCE_MS = 250; // 1/4 of a second in milliseconds
+const SECONDS_IN_A_DAY = 24 * 60 * 60; // 86400 seconds
+
+// const minTimestamp = Math.min(...allTimestamps); // assume these are in seconds
+// const maxTimestamp = Math.max(...allTimestamps);
+
+// // Calculate the number of days between minTimestamp and maxTimestamp
+// const numDays = (maxTimestamp - minTimestamp) / SECONDS_IN_A_DAY;
+
+// If you want to consider partial days as separate buckets, 
+// you might want to use Math.ceil to round up to the nearest whole number.
+// const NUM_BUCKETS = Math.ceil(numDays);
+
+// const NUM_BUCKETS = TIME_INTERVAL_MS / CADENCE_MS;
+const TXN_THRESHOLD = 3;
 
 type TGraphData = {
   nodes: {
@@ -29,11 +41,22 @@ function App() {
   const fgRef = useRef();
 
   useEffect(() => {
-    const { minTimestamp, scalingFactor } = getTimestampInfo(GRAPH_DATA.links);
+    const { minTimestamp, maxTimestamp, scalingFactor } = getTimestampInfo(GRAPH_DATA.links);
+    // Calculate the number of days between minTimestamp and maxTimestamp
+    const numDays = (maxTimestamp - minTimestamp) / SECONDS_IN_A_DAY;
+
+
+    const NUM_BUCKETS = Math.ceil(numDays / 10);
+    console.log("NUM BUCKETTTTSS", NUM_BUCKETS);
+    const CADENCE_MS = TIME_INTERVAL_MS / NUM_BUCKETS;
+
     const buckets = populateBuckets(
       GRAPH_DATA.links,
       minTimestamp,
-      scalingFactor
+      maxTimestamp,
+      scalingFactor,
+      NUM_BUCKETS,
+      CADENCE_MS,
     );
 
     // Set up the timeouts
@@ -42,12 +65,42 @@ function App() {
       //   console.info(`bucket${index} has ${bucket.length} transactions`);
       // }
       const delay = index * CADENCE_MS;
+
+
+      const elapsedTime = index * CADENCE_MS * (1 / scalingFactor);
+      const realTime = minTimestamp + elapsedTime;
+      // console.log("SCALING FACtor", scalingFactor);
+      // console.log("elapsed time", index, elapsedTime);
+      // console.log("real time", realTime);
+
+      const aggregateValue = bucket.reduce((sum, linksObject) => {
+        const linksData = linksObject.data.reduce((linksSum, dataItem) => {
+          return linksSum + Number(dataItem.value);
+        }, 0);
+        return sum + linksData;
+      }, 0);
+
+      // console.log(aggregateValue);
+
+      // console.log("aggVal", aggregateValue);
+
+
+      // console.log("REAL TIME NOW", realTime);
+      console.log(index)
+      let curDate = new Date(realTime * 1000);
+      // curDate.setUTCSeconds(aggregateValue);
+      
       setTimeout(() => {
         if (fgRef.current) {
           bucket.forEach((data) => {
             // @ts-ignore
             fgRef.current.emitParticle(data);
+
+
           });
+
+          console.log("Eth value now", aggregateValue);
+          console.log(curDate);
         }
       }, delay);
     });
@@ -112,6 +165,7 @@ const getTimestampInfo = (links: TGraphData["links"]) => {
   );
   const minTimestamp = Math.min(...allTimestamps);
   const maxTimestamp = Math.max(...allTimestamps);
+  
   const scalingFactor = TIME_INTERVAL_MS / (maxTimestamp - minTimestamp);
 
   console.log("minTimestamp", minTimestamp);
@@ -124,8 +178,15 @@ const getTimestampInfo = (links: TGraphData["links"]) => {
 const populateBuckets = (
   links: TGraphData["links"],
   minTimestamp: number,
-  scalingFactor: number
+  maxTimestamp: number,
+  scalingFactor: number,
+  NUM_BUCKETS: number,
+  CADENCE_MS: number,
 ) => {
+//   const minTimestamp = Math.min(...allTimestamps); // assume these are in seconds
+// const maxTimestamp = Math.max(...allTimestamps);
+
+
   const buckets: TGraphData["links"][] = Array.from(
     { length: NUM_BUCKETS },
     () => []
