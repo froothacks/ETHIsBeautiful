@@ -49,7 +49,7 @@ function App() {
     const numDays = (maxTimestamp - minTimestamp) / SECONDS_IN_A_DAY;
 
 
-    const NUM_BUCKETS = Math.ceil(numDays / 10);
+    const NUM_BUCKETS = Math.ceil(numDays / 4);
     console.log("NUM BUCKETTTTSS", NUM_BUCKETS);
     const CADENCE_MS = TIME_INTERVAL_MS / NUM_BUCKETS;
 
@@ -138,8 +138,17 @@ function App() {
     },
     [fgRef]
   );
+
+  const formattedDate = curDatetime.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
   return (
     <div className="App">
+      <p>Current Date: {formattedDate}</p>
+      <p>ETH sent today: {curETHValue}</p>
       <ForceGraph3D
         ref={fgRef}
         backgroundColor="#141414"
@@ -158,6 +167,7 @@ function App() {
         linkHoverPrecision={10}
         linkDirectionalParticleWidth={25}
         linkDirectionalParticleColor={() => "red"}
+        linkDirectionalParticleSpeed={0.2}
       />
     </div>
   );
