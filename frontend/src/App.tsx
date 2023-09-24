@@ -7,10 +7,10 @@ import React, {
 } from "react";
 import { ForceGraph3D } from "react-force-graph";
 import GRAPH_DATA_JSON from "./data/etherscan.json";
-import { useUnrealBloomEffect } from "./hooks";
-import Button from "./components/button";
+
 import { DateCounter } from "./components/date-counter";
-import { TransactionCounter } from "./components/transaction-counter";
+// import { TransactionCounter } from "./components/transaction-counter";
+import { blue, gray, green, orange, purple, red, teal, yellow } from "./colors";
 
 // Global constants
 export const TIME_INTERVAL_MS = 180000; // 3 minutes in milliseconds
@@ -35,12 +35,13 @@ const GRAPH_DATA = GRAPH_DATA_JSON as TGraphData;
 function App() {
   const fgRef = useRef();
   const [didRefresh, setDidRefresh] = useState(false);
+  const [baseColor, setBaseColor] = useState(getRandomBaseColor());
 
   const { minTimestamp, maxTimestamp, scalingFactor } = getTimestampInfo(
     GRAPH_DATA.links
   );
 
-  const { buckets, bucketValues } = usePopulateBuckets(
+  const { buckets } = usePopulateBuckets(
     GRAPH_DATA.links,
     minTimestamp,
     scalingFactor
@@ -62,9 +63,8 @@ function App() {
         }
       }, delay);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useUnrealBloomEffect(fgRef);
 
   const focusNode = useCallback(
     (node: any) => {
@@ -87,6 +87,7 @@ function App() {
       // @ts-ignore
       fgRef.current.refresh();
       setDidRefresh(true);
+      setBaseColor(getRandomBaseColor());
     }
   }, [fgRef]);
 
@@ -96,7 +97,7 @@ function App() {
         <button
           type="button"
           onClick={refresh}
-          className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+          className="inline-flex justify-center rounded-md border border-transparent bg-gray-100 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-800 focus-visible:ring-offset-2"
         >
           Refresh
         </button>
@@ -110,15 +111,17 @@ function App() {
         className="absolute bottom-10 left-20 z-10"
       />
 
-      <TransactionCounter bucketValues={bucketValues} cadence={CADENCE_MS} />
+      {/* <TransactionCounter bucketValues={bucketValues} cadence={CADENCE_MS} /> */}
 
       <ForceGraph3D
         ref={fgRef}
         backgroundColor="#141414"
         graphData={GRAPH_DATA}
-        nodeLabel="id"
-        nodeAutoColorBy="user"
         showNavInfo={false}
+        /* 
+        NODE CONFIGS
+         */
+        nodeLabel="id"
         onNodeDragEnd={(node) => {
           // fix nodes positions after dragging
           node.fx = node.x;
@@ -126,10 +129,24 @@ function App() {
           node.fz = node.z;
         }}
         onNodeClick={focusNode} // camera focus adjustment on zoom
-        linkHoverPrecision={10}
-        linkDirectionalParticleWidth={23}
-        linkDirectionalParticleColor={() => "red"}
-        // linkDirectionalParticleSpeed={0.2}
+        nodeResolution={32}
+        nodeColor={(node) => {
+          const group = hashAddressToGroup(node.id);
+          const intensity = ["800", "700", "600", "500", "400", "300"][group];
+          return baseColor[intensity as never];
+        }}
+        /* 
+        LINK CONFIGS
+         */
+        linkHoverPrecision={12}
+        linkWidth={2}
+        linkColor={() => gray["900"]}
+        /* 
+        LINK PARTICLE CONFIGS
+        */
+        linkDirectionalParticleWidth={10}
+        linkDirectionalParticleColor={() => baseColor["900"]}
+        linkDirectionalParticleSpeed={0.015}
       />
     </div>
   );
@@ -150,6 +167,22 @@ const getTimestampInfo = (links: TGraphData["links"]) => {
 
   return { minTimestamp, maxTimestamp, scalingFactor };
 };
+
+function hashAddressToGroup(address: string) {
+  const hexChars = "0123456789abcdef";
+  let sum = 0;
+
+  for (const char of address) {
+    sum += hexChars.indexOf(char.toLowerCase());
+  }
+
+  return sum % 6; // Create 6 groups
+}
+
+function getRandomBaseColor() {
+  const colors = [red, blue, green, yellow, purple, teal, orange];
+  return colors[Math.floor(Math.random() * colors.length)];
+}
 
 // Function to populate the buckets
 const usePopulateBuckets = (
@@ -177,7 +210,6 @@ const usePopulateBuckets = (
 
       if (buckets[bucketIndex].length < TXN_THRESHOLD) {
         buckets[bucketIndex].push(link);
-        console.log({ value });
         bucketValues[bucketIndex] += Number(value);
       }
     });

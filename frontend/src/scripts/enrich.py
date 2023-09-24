@@ -17,17 +17,27 @@ def enrich_data(input_data):
     return input_data
 
 
+def remove_user(input_data):
+    for node in input_data["nodes"]:
+        del node["user"]
+
+    return input_data
+
+
 def main():
     # Read existing data
     with open("../data/etherscan.json", "r") as f:
         data = json.load(f)
 
     # Enrich the data
-    enriched_data = enrich_data(data)
+    # enriched_data = enrich_data(data)
+
+    # Remove user data
+    data = remove_user(data)
 
     # Save enriched data back to file
     with open("../data/enriched_etherscan.json", "w") as f:
-        json.dump(enriched_data, f, indent=4)
+        json.dump(data, f, indent=4)
 
 
 if __name__ == "__main__":

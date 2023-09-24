@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import clsx from "clsx";
-import { format, addDays } from "date-fns";
+import { format } from "date-fns";
 import { TIME_INTERVAL_MS } from "../App";
 
 type DateCounterProps = {
@@ -51,8 +51,11 @@ export const DateCounter: React.FC<DateCounterProps> = ({
   return (
     // @ts-ignore
     <div
-      style={{ width: "160px" }}
-      className={clsx("flex justify-between text-md font-medium", className)}
+      style={{ width: "140px" }}
+      className={clsx(
+        "flex justify-center text-md font-medium bg-gray-600 p-4 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5",
+        className
+      )}
     >
       {date}
     </div>
