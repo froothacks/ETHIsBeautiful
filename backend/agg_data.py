@@ -1,7 +1,7 @@
 import json
 from collections import defaultdict
 
-filename = "pruned_hard4_monster_data_800k.json"
+filename = "pruned_hard6_monster_data_800k.json"
 # Suppose 'data.json' contains your graph data
 with open(filename, 'r') as f:
     graph = json.load(f)
