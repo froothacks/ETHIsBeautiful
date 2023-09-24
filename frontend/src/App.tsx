@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ForceGraph3D } from "react-force-graph";
 // import GRAPH_DATA from "./data/blocks.json";
 import GRAPH_DATA_JSON from "./data/etherscan.json";
@@ -39,6 +39,9 @@ const GRAPH_DATA = GRAPH_DATA_JSON as TGraphData;
 
 function App() {
   const fgRef = useRef();
+
+  const [curETHValue, setCurETHValue] = useState(0);
+  const [curDatetime, setCurDatetime] = useState(new Date());
 
   useEffect(() => {
     const { minTimestamp, maxTimestamp, scalingFactor } = getTimestampInfo(GRAPH_DATA.links);
@@ -101,6 +104,8 @@ function App() {
 
           console.log("Eth value now", aggregateValue);
           console.log(curDate);
+          setCurETHValue(aggregateValue);
+          setCurDatetime(curDate);
         }
       }, delay);
     });
