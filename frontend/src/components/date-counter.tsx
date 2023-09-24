@@ -46,20 +46,15 @@ export const DateCounter: React.FC<DateCounterProps> = ({
     return () => clearInterval(intervalId);
   }, [minTimestamp, maxTimestamp]);
 
-  const date = new Date(currentTimestamp);
-  const month = format(date, "MMMM");
-  const day = format(date, "d");
-  const year = format(date, "yyyy");
+  const date = format(new Date(currentTimestamp), "MMM d, yyyy");
 
   return (
     // @ts-ignore
     <div
-      style={{ width: "150px" }}
+      style={{ width: "160px" }}
       className={clsx("flex justify-between text-md font-medium", className)}
     >
-      <div style={{ flexBasis: "50%" }}>{month}</div>
-      <div style={{ flexBasis: "20%" }}>{day}</div>
-      <div style={{ flexBasis: "30%" }}>{year}</div>
+      {date}
     </div>
   );
 };

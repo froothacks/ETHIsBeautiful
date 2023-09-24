@@ -92,15 +92,22 @@ function App() {
 
   return (
     <div className="App">
-      <Button className="absolute bottom-10 right-10 z-10" onClick={refresh}>
-        Refresh
-      </Button>
+      <div className="absolute top-10 right-20 z-10">
+        <button
+          type="button"
+          onClick={refresh}
+          className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+        >
+          Refresh
+        </button>
+      </div>
+
       <DateCounter
         minTimestamp={minTimestamp * 1000} // timestamps need to be converted to milliseconds
         maxTimestamp={maxTimestamp * 1000}
         didRefresh={didRefresh}
         setDidRefresh={setDidRefresh}
-        className="absolute bottom-10 left-10 z-10"
+        className="absolute bottom-10 left-20 z-10"
       />
 
       <TransactionCounter bucketValues={bucketValues} cadence={CADENCE_MS} />

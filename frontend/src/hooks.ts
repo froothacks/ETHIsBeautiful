@@ -7,8 +7,8 @@ export const useUnrealBloomEffect = (fgRef: React.MutableRefObject<undefined>) =
     useEffect(() => {
         const bloomPass = new UnrealBloomPass(
             new THREE.Vector2(window.innerWidth, window.innerHeight),
-            0.3,
-            0.3,
+            0.4,
+            0.2,
             1.2
         );
         // @ts-ignore
