@@ -1,14 +1,22 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { ForceGraph3D } from "react-force-graph";
-import GRAPH_DATA_JSON from "./data/enriched_etherscan.json";
+import GRAPH_DATA_JSON from "./data/etherscan.json";
 import { useUnrealBloomEffect } from "./hooks";
 import Button from "./components/button";
+import { DateCounter } from "./components/date-counter";
+import { TransactionCounter } from "./components/transaction-counter";
 
 // Global constants
-const TIME_INTERVAL_MS = 180000; // 3 minutes in milliseconds
+export const TIME_INTERVAL_MS = 180000; // 3 minutes in milliseconds
 const CADENCE_MS = 250; // 1/4 of a second in milliseconds
 const NUM_BUCKETS = TIME_INTERVAL_MS / CADENCE_MS;
-const TXN_THRESHOLD = 100;
+const TXN_THRESHOLD = 20;
 
 type TGraphData = {
   nodes: {
@@ -18,8 +26,6 @@ type TGraphData = {
   links: {
     source: string;
     target: string;
-    curvature: number;
-    rotation: number;
     data: { value: string; timestamp: string }[];
   }[];
 };
@@ -28,58 +34,24 @@ const GRAPH_DATA = GRAPH_DATA_JSON as TGraphData;
 
 function App() {
   const fgRef = useRef();
+  const [didRefresh, setDidRefresh] = useState(false);
 
-  const [curETHValue, setCurETHValue] = useState(0);
-  const [curDatetime, setCurDatetime] = useState(new Date());
+  const { minTimestamp, maxTimestamp, scalingFactor } = getTimestampInfo(
+    GRAPH_DATA.links
+  );
+
+  const { buckets, bucketValues } = usePopulateBuckets(
+    GRAPH_DATA.links,
+    minTimestamp,
+    scalingFactor
+  );
+
+  console.log({ minTimestamp, maxTimestamp });
 
   useEffect(() => {
-    const { minTimestamp, maxTimestamp, scalingFactor } = getTimestampInfo(
-      GRAPH_DATA.links
-    );
-    // Calculate the number of days between minTimestamp and maxTimestamp
-    const numDays = (maxTimestamp - minTimestamp) / SECONDS_IN_A_DAY;
-
-    const NUM_BUCKETS = Math.ceil(numDays / 4);
-    console.log("NUM BUCKETTTTSS", NUM_BUCKETS);
-    const CADENCE_MS = TIME_INTERVAL_MS / NUM_BUCKETS;
-
-    const buckets = populateBuckets(
-      GRAPH_DATA.links,
-      minTimestamp,
-      maxTimestamp,
-      scalingFactor,
-      NUM_BUCKETS,
-      CADENCE_MS
-    );
-
     // Set up the timeouts
     buckets.forEach((bucket, index) => {
-      // if (bucket.length > 50) {
-      //   console.info(`bucket${index} has ${bucket.length} transactions`);
-      // }
       const delay = index * CADENCE_MS;
-
-      const elapsedTime = index * CADENCE_MS * (1 / scalingFactor);
-      const realTime = minTimestamp + elapsedTime;
-      // console.log("SCALING FACtor", scalingFactor);
-      // console.log("elapsed time", index, elapsedTime);
-      // console.log("real time", realTime);
-
-      const aggregateValue = bucket.reduce((sum, linksObject) => {
-        const linksData = linksObject.data.reduce((linksSum, dataItem) => {
-          return linksSum + Number(dataItem.value);
-        }, 0);
-        return sum + linksData;
-      }, 0);
-
-      // console.log(aggregateValue);
-
-      // console.log("aggVal", aggregateValue);
-
-      // console.log("REAL TIME NOW", realTime);
-      console.log(index);
-      let curDate = new Date(realTime * 1000);
-      // curDate.setUTCSeconds(aggregateValue);
 
       setTimeout(() => {
         if (fgRef.current) {
@@ -87,11 +59,6 @@ function App() {
             // @ts-ignore
             fgRef.current.emitParticle(data);
           });
-
-          console.log("Eth value now", aggregateValue);
-          console.log(curDate);
-          setCurETHValue(aggregateValue);
-          setCurDatetime(curDate);
         }
       }, delay);
     });
@@ -119,20 +86,25 @@ function App() {
     if (fgRef.current) {
       // @ts-ignore
       fgRef.current.refresh();
+      setDidRefresh(true);
     }
   }, [fgRef]);
 
-  const formattedDate = curDatetime.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-
   return (
     <div className="App">
-      <Button onClick={refresh}>Refresh</Button>
-      <p>Current Date: {formattedDate}</p>
-      <p>ETH sent today: {curETHValue}</p>
+      <Button className="absolute bottom-10 right-10 z-10" onClick={refresh}>
+        Refresh
+      </Button>
+      <DateCounter
+        minTimestamp={minTimestamp * 1000} // timestamps need to be converted to milliseconds
+        maxTimestamp={maxTimestamp * 1000}
+        didRefresh={didRefresh}
+        setDidRefresh={setDidRefresh}
+        className="absolute bottom-10 left-10 z-10"
+      />
+
+      <TransactionCounter bucketValues={bucketValues} cadence={CADENCE_MS} />
+
       <ForceGraph3D
         ref={fgRef}
         backgroundColor="#141414"
@@ -147,12 +119,10 @@ function App() {
           node.fz = node.z;
         }}
         onNodeClick={focusNode} // camera focus adjustment on zoom
-        linkCurvature="curvature" // set edge curvature
-        linkCurveRotation="rotation" // set edge rotation
         linkHoverPrecision={10}
         linkDirectionalParticleWidth={23}
         linkDirectionalParticleColor={() => "red"}
-        linkDirectionalParticleSpeed={0.2}
+        // linkDirectionalParticleSpeed={0.2}
       />
     </div>
   );
@@ -175,20 +145,18 @@ const getTimestampInfo = (links: TGraphData["links"]) => {
 };
 
 // Function to populate the buckets
-const populateBuckets = (
+const usePopulateBuckets = (
   links: TGraphData["links"],
   minTimestamp: number,
-  maxTimestamp: number,
-  scalingFactor: number,
-  NUM_BUCKETS: number,
-  CADENCE_MS: number
+  scalingFactor: number
 ) => {
-  //   const minTimestamp = Math.min(...allTimestamps); // assume these are in seconds
-  // const maxTimestamp = Math.max(...allTimestamps);
-
-  const buckets: TGraphData["links"][] = Array.from(
-    { length: NUM_BUCKETS },
-    () => []
+  const buckets: TGraphData["links"][] = useMemo(
+    () => Array.from({ length: NUM_BUCKETS }, () => []),
+    []
+  );
+  const bucketValues: number[] = useMemo(
+    () => Array.from({ length: NUM_BUCKETS }, () => 0),
+    []
   );
 
   links.forEach((link) => {
@@ -202,11 +170,13 @@ const populateBuckets = (
 
       if (buckets[bucketIndex].length < TXN_THRESHOLD) {
         buckets[bucketIndex].push(link);
+        console.log({ value });
+        bucketValues[bucketIndex] += Number(value);
       }
     });
   });
 
-  return buckets;
+  return { buckets, bucketValues };
 };
 
 export default App;
