@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 
 type TransactionCounterProps = {
+  curETHValue: number;
   bucketValues: number[];
   cadence: number;
 };
 
 export const TransactionCounter: React.FC<TransactionCounterProps> = ({
+  curETHValue,
   bucketValues,
   cadence,
 }) => {
@@ -49,7 +51,7 @@ export const TransactionCounter: React.FC<TransactionCounterProps> = ({
 
   return (
     <div className="Transaction">
-      {`Total Transaction Value: ${formatLargeNumber(currentTransaction)}`}
+      {`Total Transaction Value: ${curETHValue} ETH`}
     </div>
   );
 };

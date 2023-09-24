@@ -9,7 +9,7 @@ import { ForceGraph3D } from "react-force-graph";
 import GRAPH_DATA_JSON from "./data/etherscan.json";
 
 import { DateCounter } from "./components/date-counter";
-// import { TransactionCounter } from "./components/transaction-counter";
+import { TransactionCounter } from "./components/transaction-counter";
 import { gray } from "./utils/colors";
 import { TGraphData } from "./utils/types";
 import { getRandomBaseColor, getTimestampInfo, hashAddressToGroup } from "./utils/helpers";
@@ -21,6 +21,10 @@ function App() {
   const fgRef = useRef();
   const [didRefresh, setDidRefresh] = useState(false);
   const [baseColor, setBaseColor] = useState(getRandomBaseColor());
+
+  // const [curDatetime, setCurDatetime] = useState(new Date());
+
+  const [curETHValue, setCurETHValue] = useState(0);
 
   const { minTimestamp, maxTimestamp, scalingFactor } = getTimestampInfo(
     GRAPH_DATA.links
@@ -39,11 +43,36 @@ function App() {
     buckets.forEach((bucket, index) => {
       const delay = index * CADENCE_MS;
 
+
+      const elapsedTime = index * CADENCE_MS * (1 / scalingFactor);
+      const realTime = minTimestamp + elapsedTime;
+      const aggregateValue = bucket.reduce((sum, linksObject) => {
+        const linksData = linksObject.data.reduce((linksSum, dataItem) => {
+          return linksSum + Number(dataItem.value);
+        }, 0);
+        return sum + linksData;
+      }, 0);
+
+      // console.log(aggregateValue);
+
+      // console.log("aggVal", aggregateValue);
+
+
+      // console.log("REAL TIME NOW", realTime);
+      console.log(index)
+      let curDate = new Date(realTime * 1000);
+
       setTimeout(() => {
         if (fgRef.current) {
           bucket.forEach((data) => {
             // @ts-ignore
             fgRef.current.emitParticle(data);
+
+            // console.log("Eth value now", aggregateValue);
+            // console.log(curDate);
+            // setCurDatetime(curDate);
+            setCurETHValue(aggregateValue);
+
           });
         }
       }, delay);
@@ -96,7 +125,7 @@ function App() {
         className="absolute bottom-10 left-20 z-10"
       />
 
-      {/* <TransactionCounter bucketValues={bucketValues} cadence={CADENCE_MS} /> */}
+      <TransactionCounter curETHValue={curETHValue} bucketValues={[]} cadence={CADENCE_MS} />
 
       <ForceGraph3D
         ref={fgRef}
@@ -130,7 +159,7 @@ function App() {
         LINK PARTICLE CONFIGS
         */
         linkDirectionalParticleWidth={13}
-        linkDirectionalParticleColor={() => baseColor["900"]}
+        linkDirectionalParticleColor={() => "red"}
         linkDirectionalParticleSpeed={0.012}
       />
     </div>
