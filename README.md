@@ -1,4 +1,4 @@
-# GraphETHplorer
+# ETHIsBeautiful
 
 A visualizer for ETH transactions amongst the largest accounts on the chain. 
 
