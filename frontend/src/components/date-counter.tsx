@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import clsx from "clsx";
 import { format } from "date-fns";
-import { TIME_INTERVAL_MS } from "../App";
+import { TIME_INTERVAL_MS } from "../utils/constants";
 
 type DateCounterProps = {
   minTimestamp: number;

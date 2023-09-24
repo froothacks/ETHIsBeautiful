@@ -10,25 +10,10 @@ import GRAPH_DATA_JSON from "./data/etherscan.json";
 
 import { DateCounter } from "./components/date-counter";
 // import { TransactionCounter } from "./components/transaction-counter";
-import { blue, gray, green, orange, purple, red, teal, yellow } from "./colors";
-
-// Global constants
-export const TIME_INTERVAL_MS = 180000; // 3 minutes in milliseconds
-const CADENCE_MS = 250; // 1/4 of a second in milliseconds
-const NUM_BUCKETS = TIME_INTERVAL_MS / CADENCE_MS;
-const TXN_THRESHOLD = 20;
-
-type TGraphData = {
-  nodes: {
-    id: string;
-    user: string;
-  }[];
-  links: {
-    source: string;
-    target: string;
-    data: { value: string; timestamp: string }[];
-  }[];
-};
+import { gray } from "./utils/colors";
+import { TGraphData } from "./utils/types";
+import { getRandomBaseColor, getTimestampInfo, hashAddressToGroup } from "./utils/helpers";
+import { CADENCE_MS, NUM_BUCKETS, TXN_THRESHOLD } from "./utils/constants";
 
 const GRAPH_DATA = GRAPH_DATA_JSON as TGraphData;
 
@@ -150,38 +135,6 @@ function App() {
       />
     </div>
   );
-}
-
-// Function to find min/max timestamps and scaling factor
-const getTimestampInfo = (links: TGraphData["links"]) => {
-  const allTimestamps = links.flatMap((link) =>
-    link.data.map((item) => Number(item.timestamp))
-  );
-  const minTimestamp = Math.min(...allTimestamps);
-  const maxTimestamp = Math.max(...allTimestamps);
-
-  const scalingFactor = TIME_INTERVAL_MS / (maxTimestamp - minTimestamp);
-
-  console.log("minTimestamp", minTimestamp);
-  console.log("maxTimestamp", maxTimestamp);
-
-  return { minTimestamp, maxTimestamp, scalingFactor };
-};
-
-function hashAddressToGroup(address: string) {
-  const hexChars = "0123456789abcdef";
-  let sum = 0;
-
-  for (const char of address) {
-    sum += hexChars.indexOf(char.toLowerCase());
-  }
-
-  return sum % 6; // Create 6 groups
-}
-
-function getRandomBaseColor() {
-  const colors = [red, blue, green, yellow, purple, teal, orange];
-  return colors[Math.floor(Math.random() * colors.length)];
 }
 
 // Function to populate the buckets
