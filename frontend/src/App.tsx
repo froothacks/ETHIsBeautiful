@@ -87,7 +87,7 @@ function App() {
         }}
         onNodeClick={focusNode} // camera focus adjustment on zoom
         linkCurvature="curvature" // set edge curvature
-        // linkCurveRotation="rotation" // set edge rotation
+        linkCurveRotation="rotation" // set edge rotation
         linkHoverPrecision={10}
         linkDirectionalParticleWidth={25}
         linkDirectionalParticleColor={() => "red"}
@@ -132,9 +132,7 @@ const populateBuckets = (
       bucketIndex = Math.min(bucketIndex, NUM_BUCKETS - 1);
 
       if (buckets[bucketIndex].length < TXN_THRESHOLD) {
-        buckets[bucketIndex].push({
-          ...link,
-        });
+        buckets[bucketIndex].push(link);
       } else {
         // if (buckets[bucketIndex].length === TXN_THRESHOLD) {
         //   console.info(`Bucket ${bucketIndex} is full`);
