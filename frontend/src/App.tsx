@@ -144,9 +144,9 @@ function App() {
         /* 
         LINK PARTICLE CONFIGS
         */
-        linkDirectionalParticleWidth={10}
+        linkDirectionalParticleWidth={13}
         linkDirectionalParticleColor={() => baseColor["900"]}
-        linkDirectionalParticleSpeed={0.015}
+        linkDirectionalParticleSpeed={0.012}
       />
     </div>
   );
