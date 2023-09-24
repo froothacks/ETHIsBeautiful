@@ -2,12 +2,13 @@ import React, { useCallback, useEffect, useRef } from "react";
 import { ForceGraph3D } from "react-force-graph";
 import GRAPH_DATA_JSON from "./data/enriched_etherscan.json";
 import { useUnrealBloomEffect } from "./hooks";
+import Button from "./components/button";
 
 // Global constants
 const TIME_INTERVAL_MS = 180000; // 3 minutes in milliseconds
 const CADENCE_MS = 250; // 1/4 of a second in milliseconds
 const NUM_BUCKETS = TIME_INTERVAL_MS / CADENCE_MS;
-const TXN_THRESHOLD = 200;
+const TXN_THRESHOLD = 100;
 
 type TGraphData = {
   nodes: {
@@ -70,8 +71,18 @@ function App() {
     },
     [fgRef]
   );
+
+  const refresh = useCallback(() => {
+    if (fgRef.current) {
+      // @ts-ignore
+      fgRef.current.refresh();
+    }
+  }, [fgRef]);
+
   return (
     <div className="App">
+      <Button onClick={refresh}>Refresh</Button>
+
       <ForceGraph3D
         ref={fgRef}
         backgroundColor="#141414"
@@ -133,10 +144,6 @@ const populateBuckets = (
 
       if (buckets[bucketIndex].length < TXN_THRESHOLD) {
         buckets[bucketIndex].push(link);
-      } else {
-        // if (buckets[bucketIndex].length === TXN_THRESHOLD) {
-        //   console.info(`Bucket ${bucketIndex} is full`);
-        // }
       }
     });
   });
